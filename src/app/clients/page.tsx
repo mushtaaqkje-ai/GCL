@@ -1,8 +1,12 @@
 import { getCurrentUser } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, Prisma } from "@/lib/prisma";
 import { logoutUser } from "@/app/actions/authActions";
 import Link from "next/link";
 import ClientExplorer from "@/components/ClientExplorer";
+
+type ClientWithRelations = Prisma.ClientGetPayload<{
+  include: { locations: true; jobs: true };
+}>;
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +16,7 @@ export default async function ClientsPage() {
   const userRole = currentUser?.role || "VIEWER";
 
   // Fetch and serialize all clients, locations and jobs for the interactive explorer
-  const dbClients = await prisma.client.findMany({
+  const dbClients: ClientWithRelations[] = await prisma.client.findMany({
     include: {
       locations: {
         orderBy: { id: "asc" },
@@ -22,7 +26,7 @@ export default async function ClientsPage() {
       },
     },
     orderBy: { id: "asc" },
-  }).catch(() => []);
+  }).catch(() => [] as ClientWithRelations[]);
 
   const serializedClients = dbClients.map((client) => ({
     ...client,
