@@ -1,12 +1,11 @@
 import { getCurrentUser } from "@/lib/auth";
-import { prisma, Prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { logoutUser } from "@/app/actions/authActions";
 import Link from "next/link";
 import ClientExplorer from "@/components/ClientExplorer";
+import type { Client, Location, Job } from "@prisma/client";
 
-type ClientWithRelations = Prisma.ClientGetPayload<{
-  include: { locations: true; jobs: true };
-}>;
+type ClientWithRelations = Client & { locations: Location[]; jobs: Job[] };
 
 export const dynamic = "force-dynamic";
 
@@ -28,16 +27,16 @@ export default async function ClientsPage() {
     orderBy: { id: "asc" },
   }).catch(() => [] as ClientWithRelations[]);
 
-  const serializedClients = dbClients.map((client) => ({
+  const serializedClients = dbClients.map((client: ClientWithRelations) => ({
     ...client,
     createdAt: client.createdAt.toISOString(),
     updatedAt: client.updatedAt.toISOString(),
-    locations: client.locations.map((loc) => ({
+    locations: client.locations.map((loc: Location) => ({
       ...loc,
       createdAt: loc.createdAt.toISOString(),
       updatedAt: loc.updatedAt.toISOString(),
     })),
-    jobs: client.jobs.map((job) => ({
+    jobs: client.jobs.map((job: Job) => ({
       ...job,
       createdAt: job.createdAt.toISOString(),
       updatedAt: job.updatedAt.toISOString(),

@@ -1,5 +1,4 @@
-import { PrismaClient, Prisma } from "@prisma/client";
-export { Prisma };
+import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 
