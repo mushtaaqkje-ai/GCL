@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// GCL-KJE Client record
+/// ID format: CLI-XXXXX (e.g. CLI-00001)
+/// User-added clients get -U suffix (e.g. CLI-01602-U)
+/// Reserved: CLI-00001 = Cargills Retail, CLI-00002 = KFC
+model Client {
+  id                String   @id // e.g. "CLI-00001"
+  name              String
+  type              String   // "Corporate" or "Residence"
+  canonicalNameKey  String?  @map("canonical_name_key") // lowercase, suffix-stripped for fuzzy matching
+  createdAt         DateTime @default(now()) @map("created_at")
+  createdBy         String?  @map("created_by") // nullable until auth is added
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  locations Location[]
+  jobs      Job[]
+
+  @@map("clients")
+}
+
+/// GCL-KJE Location record (installation site)
+/// ID format: LOC-XXXXXX (e.g. LOC-000001)
+/// User-added locations get -U suffix
+model Location {
+  id                   String   @id // e.g. "LOC-000001"
+  clientId             String   @map("client_id")
+  name                 String   // short display label e.g. "FC Ambathale"
+  installationAddress  String?  @map("installation_address")
+  billingAddress       String?  @map("billing_address")
+  createdAt            DateTime @default(now()) @map("created_at")
+  createdBy            String?  @map("created_by")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  jobs   Job[]
+
+  @@index([clientId])
+  @@map("locations")
+}
+
+/// GCL-KJE Job record
+/// ID format: JOB-XXXXXX (e.g. JOB-000001)
+/// User-added jobs get -U suffix
+/// Status is COMPUTED, not stored (except status_override)
+model Job {
+  id              String   @id // e.g. "JOB-000001"
+  clientId        String   @map("client_id")
+  locationId      String   @map("location_id")
+  jobNo           String?  @map("job_no") // original business job number e.g. "JOB/24/0012"
+  saleType        String   @map("sale_type") // OUTRIGHT | RENTAL | AMC | NHW
+  system          String?  // e.g. "CCTV", "Access Control"
+  invoiceNo       String?  @map("invoice_no")
+  invoiceDate     DateTime? @map("invoice_date") @db.Date
+
+  // OUTRIGHT-specific fields
+  outrightValue   Decimal? @map("outright_value") @db.Decimal(12, 2)
+  warrantyMonths  Int?     @map("warranty_months")
+  warrantyEnd     DateTime? @map("warranty_end") @db.Date // drives Active/Non Active for OUTRIGHT
+
+  // Non-OUTRIGHT fields (RENTAL, AMC, NHW)
+  agreementNo     String?  @map("agreement_no")
+  agreementStart  DateTime? @map("agreement_start") @db.Date
+  agreementEnd    DateTime? @map("agreement_end") @db.Date // drives Active/Non Active for non-OUTRIGHT
+  rentalAmount    Decimal? @map("rental_amount") @db.Decimal(12, 2)
+
+  // Contact & sales
+  contactPerson   String?  @map("contact_person")
+  contactNumber   String?  @map("contact_number")
+  bde             String?  // Business Development Executive
+
+  // Status override (usually NULL; computed status used otherwise)
+  statusOverride  String?  @map("status_override")
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  createdBy       String?  @map("created_by")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([locationId])
+  @@index([saleType])
+  @@map("jobs")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // Hashed using bcrypt
+  name      String
+  role      Role     @default(VIEWER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}

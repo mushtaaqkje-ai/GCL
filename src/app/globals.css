@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+/* ============ GCL-KJE Design Tokens (spec §5) ============ */
+:root {
+  /* Primary */
+  --navy: #0E1F38;
+  --navy-soft: #1A2D4A;
+  --navy-deep: #07111F;
+
+  /* Accent */
+  --red: #E63946;
+  --red-soft: #FFE9EB;
+  --red-deep: #B81E2A;
+
+  /* Surfaces */
+  --cream: #FAFAF7;
+  --paper: #FFFFFF;
+
+  /* Borders */
+  --line: #E7E5DF;
+  --line-strong: #D4D2CC;
+
+  /* Text */
+  --ink: #14181F;
+  --ink-muted: #5A6373;
+  --ink-faint: #8E96A3;
+
+  /* Status: Active */
+  --active-bg: #DCFCE7;
+  --active-fg: #166534;
+  --active-dot: #16A34A;
+
+  /* Status: Non Active */
+  --inactive-bg: #F1F2F4;
+  --inactive-fg: #4B5563;
+  --inactive-dot: #94A3B8;
+
+  /* Radius */
+  --radius: 10px;
+}
+
+/* ============ Tailwind v4 @theme inline ============ */
+@theme inline {
+  /* Colors */
+  --color-navy: #0E1F38;
+  --color-navy-soft: #1A2D4A;
+  --color-navy-deep: #07111F;
+
+  --color-red: #E63946;
+  --color-red-soft: #FFE9EB;
+  --color-red-deep: #B81E2A;
+
+  --color-cream: #FAFAF7;
+  --color-paper: #FFFFFF;
+
+  --color-line: #E7E5DF;
+  --color-line-strong: #D4D2CC;
+
+  --color-ink: #14181F;
+  --color-ink-muted: #5A6373;
+  --color-ink-faint: #8E96A3;
+
+  --color-active-bg: #DCFCE7;
+  --color-active-fg: #166534;
+  --color-active-dot: #16A34A;
+
+  --color-inactive-bg: #F1F2F4;
+  --color-inactive-fg: #4B5563;
+  --color-inactive-dot: #94A3B8;
+
+  /* Sale type badge colors */
+  --color-sale-outright-bg: #E0E7FF;
+  --color-sale-outright-fg: #3730A3;
+  --color-sale-rental-bg: #FCE7F3;
+  --color-sale-rental-fg: #9D174D;
+  --color-sale-amc-bg: #FEF3C7;
+  --color-sale-amc-fg: #92400E;
+  --color-sale-nhw-bg: #D1FAE5;
+  --color-sale-nhw-fg: #065F46;
+
+  /* Fonts */
+  --font-heading: var(--font-bricolage);
+  --font-body: var(--font-manrope);
+  --font-mono: var(--font-jetbrains);
+
+  /* Shadows - using literal values to avoid var() issues in @theme */
+  --shadow-card: 0 1px 0 rgba(20, 24, 31, 0.04), 0 1px 3px rgba(20, 24, 31, 0.03);
+  --shadow-hover: 0 4px 12px rgba(20, 24, 31, 0.08), 0 1px 3px rgba(20, 24, 31, 0.04);
+}
+
+/* ============ Base Styles ============ */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============ Animations ============ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeBg {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUpToast {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.22s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.25s ease-out;
+}
+
+/* ============ Custom Scrollbar ============ */
+main::-webkit-scrollbar {
+  width: 6px;
+}
+
+main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+main::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 3px;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-faint);
+}
+
+main {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
